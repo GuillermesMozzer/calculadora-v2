@@ -55,11 +55,11 @@ export default function CalculatorPage() {
   return (
     <div className="flex min-h-screen">
       <aside className="glass fixed inset-y-0 left-0 z-40 flex w-[72px] flex-col border-r md:w-56">
-        <div className="border-b border-white/[0.06] px-4 py-5">
-          <TakingLogo height={28} className="hidden max-w-[160px] object-contain object-left md:block" />
-          <div className="flex h-7 items-center justify-center md:hidden">
-            <img src="/favicon.svg" alt="Taking" className="h-7 w-7" />
-          </div>
+        <div className="border-b border-white/[0.06] px-3 py-4 md:px-4 md:py-5">
+          <TakingLogo
+            height={32}
+            className="mx-auto max-w-[140px] object-contain md:mx-0 md:max-w-[180px] md:object-left"
+          />
           <p className="mt-2 hidden text-[10px] font-medium uppercase tracking-widest text-taking md:block">
             Calculadora V2
           </p>

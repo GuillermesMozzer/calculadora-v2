@@ -1,4 +1,4 @@
-const LOGO_SRC = "/brand/logo-grupo-taking-branco.svg";
+const LOGO_SRC = "/brand/logo-plataforma-talent.svg";
 
 interface TakingLogoProps {
   className?: string;

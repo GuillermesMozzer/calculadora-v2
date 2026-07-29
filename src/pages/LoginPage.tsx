@@ -27,7 +27,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen text-zinc-100">
+    <div className="taking-glow min-h-screen text-zinc-100">
       <div className="mx-auto grid min-h-screen max-w-7xl grid-cols-1 gap-12 px-6 py-10 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div className="flex flex-col justify-between">
           <TakingLogo height={36} />
@@ -38,7 +38,7 @@ export default function LoginPage() {
             <h1 className="mt-3 text-4xl font-semibold leading-[0.95] tracking-tight sm:text-5xl lg:text-6xl">
               Take over
               <br />
-              your <span className="italic text-white/90">margin</span>
+              your <span className="font-serif-italic text-white">margin</span>
               <span className="text-taking">.</span>
             </h1>
             <p className="mt-6 max-w-md text-base text-zinc-500">
