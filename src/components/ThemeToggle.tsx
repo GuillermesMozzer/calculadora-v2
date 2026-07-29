@@ -2,7 +2,12 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/cn";
 
-export function ThemeToggle({ className }: { className?: string }) {
+interface ThemeToggleProps {
+  className?: string;
+  variant?: "fixed" | "inline";
+}
+
+export function ThemeToggle({ className, variant = "inline" }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
 
@@ -13,7 +18,9 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       className={cn(
-        "fixed right-4 top-4 z-[100] inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-raised/90 text-foreground shadow-lg backdrop-blur-md transition-colors hover:border-taking/40 hover:bg-taking-muted hover:text-taking",
+        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface-raised/90 text-foreground transition-colors hover:border-taking/40 hover:bg-taking-muted hover:text-taking",
+        variant === "fixed" &&
+          "fixed right-4 top-4 z-[100] shadow-lg backdrop-blur-md",
         className,
       )}
     >

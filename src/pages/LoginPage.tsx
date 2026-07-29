@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { TakingLogo } from "@/components/TakingLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
@@ -28,6 +29,7 @@ export default function LoginPage() {
 
   return (
     <div className="taking-glow min-h-screen text-foreground">
+      <ThemeToggle variant="fixed" />
       <div className="mx-auto grid min-h-screen max-w-7xl grid-cols-1 gap-12 px-6 py-10 pt-16 lg:grid-cols-2 lg:items-center lg:gap-16">
         <div className="flex flex-col justify-between">
           <TakingLogo height={36} />

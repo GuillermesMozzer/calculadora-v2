@@ -8,6 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import { TakingLogo } from "@/components/TakingLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ModePrecificar } from "@/components/ModePrecificar";
 import { ModeRatecard } from "@/components/ModeRatecard";
 import { ModeTime } from "@/components/ModeTime";
@@ -102,15 +103,16 @@ export default function CalculatorPage() {
 
       <main className="ml-[72px] flex min-h-screen flex-1 flex-col md:ml-56">
         <header className="sticky top-0 z-30 flex items-start justify-between gap-4 border-b border-border/10 bg-surface-raised/85 px-4 py-4 backdrop-blur-xl sm:px-8">
-          <div className="pr-12">
+          <div>
             <h1 className="text-xl font-semibold">{active.label}</h1>
             <p className="mt-0.5 text-sm text-muted">{active.desc}</p>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium text-foreground/90">{user.name}</p>
               <p className="text-xs text-muted/80">{user.email}</p>
             </div>
+            <ThemeToggle />
             <button
               type="button"
               onClick={logout}

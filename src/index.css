@@ -80,10 +80,6 @@
       radial-gradient(ellipse 90% 70% at -5% 105%, rgba(255, 90, 31, 0.08) 0%, transparent 60%),
       linear-gradient(180deg, #faf9f8 0%, #f5f4f3 45%, #ebeae8 100%);
   }
-
-  html.light .taking-logo img {
-    filter: brightness(0) saturate(100%);
-  }
 }
 
 @layer base {
