@@ -42,12 +42,12 @@ export function ModeRatecard() {
 
       <div className="glass grid gap-4 rounded-2xl p-4 md:grid-cols-3">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-zinc-500">Buscar perfil</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Buscar perfil</label>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Ex: Mainframe, React…"
-            className="w-full rounded-xl border border-white/10 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
+            className="w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
           />
         </div>
         <PillSelect
@@ -63,12 +63,12 @@ export function ModeRatecard() {
         <MbSlider value={mb} onChange={setMb} label="MB para cálculo" />
       </div>
 
-      <div className="text-xs text-zinc-500">{rows.length} perfis</div>
+      <div className="text-xs text-muted">{rows.length} perfis</div>
 
       <div className="glass overflow-hidden rounded-2xl">
         <div className="max-h-[calc(100vh-280px)] overflow-auto">
           <table className="w-full text-left text-sm">
-            <thead className="sticky top-0 z-10 bg-surface-overlay text-xs uppercase tracking-wide text-zinc-500">
+            <thead className="sticky top-0 z-10 bg-surface-overlay text-xs uppercase tracking-wide text-muted">
               <tr>
                 <th className="px-4 py-3 font-medium">Perfil</th>
                 <th className="px-4 py-3 font-medium">Nível</th>
@@ -84,15 +84,15 @@ export function ModeRatecard() {
                 return (
                   <tr
                     key={`${r.profile}-${r.seniority}`}
-                    className="border-t border-white/[0.04] hover:bg-white/[0.02]"
+                    className="border-t border-border/10 hover:bg-foreground/5"
                   >
-                    <td className="px-4 py-2.5 text-zinc-200">{r.profile}</td>
-                    <td className="px-4 py-2.5 text-zinc-400">{SENIORITY_LABEL[r.seniority]}</td>
-                    <td className="mono-num px-4 py-2.5 text-right text-zinc-400">
+                    <td className="px-4 py-2.5 text-foreground/90">{r.profile}</td>
+                    <td className="px-4 py-2.5 text-muted">{SENIORITY_LABEL[r.seniority]}</td>
+                    <td className="mono-num px-4 py-2.5 text-right text-muted">
                       {formatBRL(r.salary)}
                     </td>
                     <td className="mono-num px-4 py-2.5 text-right">{formatBRL(r.calc.costMonthly)}</td>
-                    <td className="mono-num px-4 py-2.5 text-right font-medium text-white">
+                    <td className="mono-num px-4 py-2.5 text-right font-medium text-foreground">
                       {formatBRL(r.calc.saleMonthly)}
                     </td>
                     <td

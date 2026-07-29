@@ -55,7 +55,7 @@ export default function CalculatorPage() {
   return (
     <div className="flex min-h-screen">
       <aside className="glass fixed inset-y-0 left-0 z-40 flex w-[72px] flex-col border-r md:w-56">
-        <div className="border-b border-white/[0.06] px-3 py-4 md:px-4 md:py-5">
+        <div className="border-b border-border/10 px-3 py-4 md:px-4 md:py-5">
           <TakingLogo
             height={32}
             className="mx-auto max-w-[140px] object-contain md:mx-0 md:max-w-[180px] md:object-left"
@@ -77,16 +77,16 @@ export default function CalculatorPage() {
                 className={cn(
                   "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all",
                   on
-                    ? "bg-taking-muted text-white shadow-glow"
-                    : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300",
+                    ? "bg-taking-muted text-foreground shadow-glow"
+                    : "text-muted hover:bg-foreground/5 hover:text-foreground/90",
                 )}
               >
                 <Icon
-                  className={cn("h-5 w-5 shrink-0", on ? "text-taking" : "text-zinc-600")}
+                  className={cn("h-5 w-5 shrink-0", on ? "text-taking" : "text-muted/80")}
                 />
                 <div className="hidden min-w-0 md:block">
                   <p className="text-sm font-medium">{m.label}</p>
-                  <p className="truncate text-[10px] text-zinc-600 group-hover:text-zinc-500">
+                  <p className="truncate text-[10px] text-muted/80 group-hover:text-muted">
                     {m.desc}
                   </p>
                 </div>
@@ -95,27 +95,27 @@ export default function CalculatorPage() {
           })}
         </nav>
 
-        <div className="hidden border-t border-white/[0.06] p-4 text-[10px] text-zinc-600 md:block">
+        <div className="hidden border-t border-border/10 p-4 text-[10px] text-muted/80 md:block">
           Grupo Taking
         </div>
       </aside>
 
       <main className="ml-[72px] flex min-h-screen flex-1 flex-col md:ml-56">
-        <header className="sticky top-0 z-30 flex items-start justify-between gap-4 border-b border-white/[0.06] bg-surface/80 px-4 py-4 backdrop-blur-xl sm:px-8">
-          <div>
-            <h1 className="text-xl font-semibold text-white">{active.label}</h1>
-            <p className="mt-0.5 text-sm text-zinc-500">{active.desc}</p>
+        <header className="sticky top-0 z-30 flex items-start justify-between gap-4 border-b border-border/10 bg-surface-raised/85 px-4 py-4 backdrop-blur-xl sm:px-8">
+          <div className="pr-12">
+            <h1 className="text-xl font-semibold">{active.label}</h1>
+            <p className="mt-0.5 text-sm text-muted">{active.desc}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-zinc-300">{user.name}</p>
-              <p className="text-xs text-zinc-600">{user.email}</p>
+              <p className="text-sm font-medium text-foreground/90">{user.name}</p>
+              <p className="text-xs text-muted/80">{user.email}</p>
             </div>
             <button
               type="button"
               onClick={logout}
               title="Sair"
-              className="rounded-xl border border-white/10 p-2 text-zinc-400 transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+              className="rounded-xl border border-border/15 p-2 text-muted transition-colors hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-500"
             >
               <LogOut className="h-4 w-4" />
             </button>

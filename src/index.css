@@ -3,8 +3,30 @@
 @tailwind utilities;
 
 @layer base {
+  html.dark {
+    --foreground: 244 244 245;
+    --muted: 113 113 122;
+    --border: 255 255 255;
+    --surface: 17 17 16;
+    --surface-raised: 26 25 24;
+    --surface-overlay: 34 33 32;
+    --glass-bg: 255 255 255;
+    --header-bg: 17 17 16;
+  }
+
+  html.light {
+    --foreground: 24 24 27;
+    --muted: 82 82 91;
+    --border: 0 0 0;
+    --surface: 245 244 243;
+    --surface-raised: 255 255 255;
+    --surface-overlay: 235 234 232;
+    --glass-bg: 255 255 255;
+    --header-bg: 255 255 255;
+  }
+
   * {
-    @apply border-white/[0.08];
+    @apply border-border/10;
   }
 
   html {
@@ -12,7 +34,7 @@
   }
 
   body {
-    @apply min-h-screen bg-surface font-sans text-zinc-100;
+    @apply min-h-screen bg-surface font-sans text-foreground transition-colors duration-200;
   }
 
   input[type="number"]::-webkit-inner-spin-button,
@@ -24,7 +46,14 @@
 
 @layer utilities {
   .glass {
-    @apply border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
+    border: 1px solid rgb(var(--border) / 0.1);
+    background-color: rgb(var(--glass-bg) / 0.04);
+    backdrop-filter: blur(24px);
+  }
+
+  html.light .glass {
+    background-color: rgb(var(--glass-bg) / 0.88);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
   }
 
   .mono-num {
@@ -43,5 +72,22 @@
       radial-gradient(ellipse 120% 90% at 100% -15%, rgba(255, 90, 31, 0.22) 0%, transparent 55%),
       radial-gradient(ellipse 90% 70% at -5% 105%, rgba(255, 90, 31, 0.12) 0%, transparent 60%),
       linear-gradient(180deg, #1a1614 0%, #100e0c 45%, #000 100%);
+  }
+
+  html.light .taking-glow {
+    background:
+      radial-gradient(ellipse 120% 90% at 100% -15%, rgba(255, 90, 31, 0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 90% 70% at -5% 105%, rgba(255, 90, 31, 0.08) 0%, transparent 60%),
+      linear-gradient(180deg, #faf9f8 0%, #f5f4f3 45%, #ebeae8 100%);
+  }
+
+  html.light .taking-logo img {
+    filter: brightness(0) saturate(100%);
+  }
+}
+
+@layer base {
+  .bg-glass-bg {
+    background-color: rgb(var(--glass-bg));
   }
 }

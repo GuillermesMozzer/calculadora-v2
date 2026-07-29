@@ -18,14 +18,15 @@ export function MbGauge({ mb, size = 140, className }: Props) {
     tone === "green" ? "#4ade80" : tone === "amber" ? "#fbbf24" : "#f87171";
 
   return (
-    <div className={cn("relative inline-flex flex-col items-center", className)}>
+    <div className={cn("relative inline-flex flex-col items-center text-foreground", className)}>
       <svg width={size} height={size} className="-rotate-90">
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="currentColor"
+          strokeOpacity={0.12}
           strokeWidth={stroke}
         />
         <circle
@@ -43,10 +44,10 @@ export function MbGauge({ mb, size = 140, className }: Props) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="mono-num text-3xl font-semibold text-white">{formatPct(mb, 1)}</span>
-        <span className="text-[10px] uppercase tracking-widest text-zinc-500">MB</span>
+        <span className="mono-num text-3xl font-semibold">{formatPct(mb, 1)}</span>
+        <span className="text-[10px] uppercase tracking-widest text-muted">MB</span>
       </div>
-      <div className="mt-2 flex gap-3 text-[10px] text-zinc-600">
+      <div className="mt-2 flex gap-3 text-[10px] text-muted/80">
         <span className={pct >= 32 ? "text-emerald-400" : ""}>32</span>
         <span className={pct >= 29 && pct < 32 ? "text-amber-400" : ""}>29</span>
         <span className={pct < 29 ? "text-red-400" : ""}>26</span>
@@ -88,7 +89,7 @@ export function MetricTile({
         highlight ? "glass bg-taking-muted shadow-glow" : "bg-surface-overlay/60",
       )}
     >
-      <div className="text-[11px] text-zinc-500">{label}</div>
+      <div className="text-[11px] text-muted">{label}</div>
       <div className={cn("mono-num mt-1 text-lg font-semibold", highlight && "text-taking")}>
         {value}
       </div>

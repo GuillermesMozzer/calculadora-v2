@@ -114,15 +114,15 @@ export function ModeSaude() {
   return (
     <div className="animate-fade-in space-y-5">
       <section className="glass rounded-2xl p-5">
-        <h2 className="mb-4 text-sm font-semibold text-zinc-300">Registrar alocação</h2>
+        <h2 className="mb-4 text-sm font-semibold text-foreground/90">Registrar alocação</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs text-zinc-500">Contrato / Cliente</label>
+            <label className="mb-1.5 block text-xs text-muted">Contrato / Cliente</label>
             <input
               value={contract}
               onChange={(e) => setContract(e.target.value)}
               placeholder="Ex: Banco ABC — SAP"
-              className="w-full rounded-xl border border-white/10 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
+              className="w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
             />
           </div>
           <ProfileSearch value={profile} onChange={setProfile} />
@@ -187,7 +187,7 @@ export function ModeSaude() {
               >
                 {status}
               </p>
-              <p className="mt-2 text-zinc-400">
+              <p className="mt-2 text-muted">
                 {consolidated.n} profissionais · Receita {formatBRL(consolidated.revenue)}/mês
               </p>
               <div className="mt-3">
@@ -197,12 +197,12 @@ export function ModeSaude() {
           </div>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-zinc-300">Pirâmide financeira</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground/90">Pirâmide financeira</h3>
             <div className="space-y-2">
               {pyramid.map((p) => (
                 <div key={p.label} className="flex items-center gap-3 text-xs">
-                  <span className="w-20 shrink-0 text-zinc-500">{p.label}</span>
-                  <div className="relative h-8 flex-1 overflow-hidden rounded-lg bg-white/5">
+                  <span className="w-20 shrink-0 text-muted">{p.label}</span>
+                  <div className="relative h-8 flex-1 overflow-hidden rounded-lg bg-foreground/5">
                     <div
                       className={cn(
                         "flex h-full items-center px-2 font-semibold text-zinc-900",
@@ -213,7 +213,7 @@ export function ModeSaude() {
                       {formatBRL(p.value)}
                     </div>
                   </div>
-                  <span className="mono-num w-12 shrink-0 text-right text-zinc-500">
+                  <span className="mono-num w-12 shrink-0 text-right text-muted">
                     {p.pct.toFixed(0)}%
                   </span>
                 </div>
@@ -222,7 +222,7 @@ export function ModeSaude() {
           </section>
 
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-zinc-300">Alocados</h3>
+            <h3 className="text-sm font-semibold text-foreground/90">Alocados</h3>
             <button
               type="button"
               onClick={() => setOps([])}
@@ -234,7 +234,7 @@ export function ModeSaude() {
 
           <div className="glass overflow-auto rounded-2xl">
             <table className="w-full min-w-[720px] text-xs">
-              <thead className="bg-surface-overlay text-zinc-500">
+              <thead className="bg-surface-overlay text-muted">
                 <tr>
                   {["Contrato", "Perfil", "Venda/m", "Custo/m", "Hora", "MB", ""].map((h) => (
                     <th key={h || "x"} className="px-3 py-2 text-left font-medium">
@@ -245,16 +245,16 @@ export function ModeSaude() {
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.id} className="border-t border-white/[0.04]">
+                  <tr key={r.id} className="border-t border-border/10">
                     <td className="px-3 py-2">{r.contract}</td>
                     <td className="px-3 py-2">
                       {r.profile}
-                      <span className="ml-1 text-zinc-600">
+                      <span className="ml-1 text-muted/80">
                         · {SENIORITY_LABEL[r.seniority]} · {MODEL_LABEL[r.model]}
                       </span>
                     </td>
                     <td className="mono-num px-3 py-2">{formatBRL(r.saleMonthly)}</td>
-                    <td className="mono-num px-3 py-2 text-zinc-400">{formatBRL(r.cost)}</td>
+                    <td className="mono-num px-3 py-2 text-muted">{formatBRL(r.cost)}</td>
                     <td className="mono-num px-3 py-2 font-semibold text-taking">
                       {formatBRL(r.hourly)}
                     </td>
@@ -272,7 +272,7 @@ export function ModeSaude() {
                       <button
                         type="button"
                         onClick={() => setOps((list) => list.filter((x) => x.id !== r.id))}
-                        className="text-zinc-600 hover:text-red-400"
+                        className="text-muted/80 hover:text-red-400"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -286,7 +286,7 @@ export function ModeSaude() {
       )}
 
       {ops.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-white/10 py-16 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-border/15 py-16 text-center text-sm text-muted">
           Adicione profissionais alocados com o valor de venda real para monitorar a saúde da operação.
         </div>
       )}

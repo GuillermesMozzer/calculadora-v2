@@ -10,7 +10,7 @@ export function TakingLogo({ className, height = 32 }: TakingLogoProps) {
     <img
       src={LOGO_SRC}
       alt="Grupo Taking"
-      className={className}
+      className={`taking-logo ${className ?? ""}`}
       style={{ height, width: "auto" }}
     />
   );

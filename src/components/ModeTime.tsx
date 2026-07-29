@@ -101,7 +101,7 @@ export function ModeTime() {
   return (
     <div className="animate-fade-in space-y-5">
       <section className="glass rounded-2xl p-5">
-        <h2 className="mb-4 text-sm font-semibold text-zinc-300">Adicionar profissional</h2>
+        <h2 className="mb-4 text-sm font-semibold text-foreground/90">Adicionar profissional</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <ProfileSearch value={profile} onChange={setProfile} className="md:col-span-2" />
           <PillSelect
@@ -160,7 +160,7 @@ export function ModeTime() {
         <button
           type="button"
           onClick={addMember}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-taking px-4 py-2.5 text-sm font-semibold text-white hover:bg-taking-hover"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-taking px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-taking-hover"
         >
           <Plus className="h-4 w-4" />
           Adicionar ao time
@@ -199,32 +199,32 @@ export function ModeTime() {
               <div key={m.id} className="glass rounded-xl p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <p className="font-medium text-white">{m.profile}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="font-medium text-foreground">{m.profile}</p>
+                    <p className="text-xs text-muted">
                       {SENIORITY_LABEL[m.seniority]} · {MODEL_LABEL[m.model]} · {m.hours}h
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setTeam((t) => t.filter((x) => x.id !== m.id))}
-                    className="rounded-lg p-1.5 text-zinc-500 hover:bg-red-500/10 hover:text-red-400"
+                    className="rounded-lg p-1.5 text-muted hover:bg-red-500/10 hover:text-red-400"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-4">
                   <div>
-                    <p className="text-[10px] uppercase text-zinc-600">Venda/h</p>
+                    <p className="text-[10px] uppercase text-muted/80">Venda/h</p>
                     <p className="mono-num text-lg font-semibold text-taking">
                       {formatBRL(calc.saleHourly)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase text-zinc-600">Venda/mês</p>
-                    <p className="mono-num text-lg text-white">{formatBRL(calc.saleMonthly)}</p>
+                    <p className="text-[10px] uppercase text-muted/80">Venda/mês</p>
+                    <p className="mono-num text-lg text-foreground">{formatBRL(calc.saleMonthly)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase text-zinc-600">MB</p>
+                    <p className="text-[10px] uppercase text-muted/80">MB</p>
                     <p
                       className={cn(
                         "mono-num text-lg font-semibold",
@@ -253,12 +253,12 @@ export function ModeTime() {
             <div className="glass space-y-4 rounded-2xl border-taking/20 p-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-xs text-zinc-500">Cliente</label>
+                  <label className="mb-1.5 block text-xs text-muted">Cliente</label>
                   <input
                     value={client}
                     onChange={(e) => setClient(e.target.value)}
                     placeholder="Nome do cliente"
-                    className="w-full rounded-xl border border-white/10 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
+                    className="w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50"
                   />
                 </div>
                 <PillSelect
@@ -275,12 +275,12 @@ export function ModeTime() {
                   ]}
                 />
               </div>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted">
                 Proposta{client ? ` — ${client}` : ""} · MB {formatPct(proposalMb)}
               </p>
-              <div className="overflow-auto rounded-xl border border-white/5">
+              <div className="overflow-auto rounded-xl border border-border/10">
                 <table className="w-full min-w-[640px] text-xs">
-                  <thead className="bg-surface-overlay text-zinc-500">
+                  <thead className="bg-surface-overlay text-muted">
                     <tr>
                       {["Perfil", "Nível", "Modelo", "Salário", "Venda/mês", "Venda/h", "MB"].map(
                         (h) => (
@@ -293,7 +293,7 @@ export function ModeTime() {
                   </thead>
                   <tbody>
                     {membersCalc.map(({ m, calc }) => (
-                      <tr key={m.id} className="border-t border-white/[0.04]">
+                      <tr key={m.id} className="border-t border-border/10">
                         <td className="px-3 py-2">{m.profile}</td>
                         <td className="px-3 py-2">{SENIORITY_LABEL[m.seniority]}</td>
                         <td className="px-3 py-2">{MODEL_LABEL[m.model]}</td>
@@ -318,7 +318,7 @@ export function ModeTime() {
       )}
 
       {team.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-white/10 py-16 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-border/15 py-16 text-center text-sm text-muted">
           Monte seu time adicionando profissionais acima.
         </div>
       )}
