@@ -3,9 +3,17 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { TakingLogo } from "@/components/TakingLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
+import { useVersion, type AppVersion } from "@/contexts/VersionContext";
+import { cn } from "@/lib/cn";
+
+const VERSIONS: { id: AppVersion; label: string; hint: string }[] = [
+  { id: "v1", label: "V1", hint: "Passo a passo" },
+  { id: "v2", label: "V2", hint: "Cockpit atual" },
+];
 
 export default function LoginPage() {
   const { user, login } = useAuth();
+  const { version, setVersion } = useVersion();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +43,7 @@ export default function LoginPage() {
           <TakingLogo height={36} />
           <div className="py-12 lg:py-0">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-taking">
-              Calculadora V2
+              Calculadora {version === "v1" ? "V1" : "V2"}
             </p>
             <h1 className="mt-3 text-4xl font-semibold leading-[0.95] tracking-tight sm:text-5xl lg:text-6xl">
               Take over
@@ -44,8 +52,9 @@ export default function LoginPage() {
               <span className="text-taking">.</span>
             </h1>
             <p className="mt-6 max-w-md text-base text-muted">
-              Precificação de talentos Taking — margem, ratecard, montagem de time e saúde da
-              operação em um cockpit único.
+              {version === "v1"
+                ? "Precificação didática: escolha a ratecard, o perfil e o contrato. Os valores se calculam — e você pode travar qualquer campo para simular."
+                : "Precificação de talentos Taking — margem, ratecard, montagem de time e saúde da operação em um cockpit único."}
             </p>
           </div>
           <p className="hidden text-xs text-muted/80 lg:block">
@@ -57,6 +66,39 @@ export default function LoginPage() {
           <div className="glass rounded-3xl p-6 shadow-glow sm:p-8">
             <h2 className="text-xl font-semibold">Entrar</h2>
             <p className="mt-1 text-sm text-muted">Qualquer e-mail e senha válidos (demo).</p>
+
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-medium text-muted">Versão</p>
+              <div
+                role="radiogroup"
+                aria-label="Versão da calculadora"
+                className="grid grid-cols-2 gap-1 rounded-2xl border border-border/15 bg-surface-overlay p-1"
+              >
+                {VERSIONS.map((item) => {
+                  const on = version === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => setVersion(item.id)}
+                      className={cn(
+                        "rounded-xl px-3 py-2.5 text-center transition-all",
+                        on
+                          ? "bg-taking text-white shadow-glow"
+                          : "text-muted hover:bg-foreground/5 hover:text-foreground",
+                      )}
+                    >
+                      <span className="block text-sm font-semibold">{item.label}</span>
+                      <span className={cn("block text-[10px]", on ? "text-white/80" : "text-muted/80")}>
+                        {item.hint}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <div className="space-y-2">

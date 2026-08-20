@@ -24,9 +24,12 @@ export type CalcInput = {
   salary: number;
   model: ContractModel;
   targetMb: number;
-  hours: HoursOption;
+  hours: HoursOption | number;
   infra: InfraOption;
   finder: FinderOption;
+  va?: number;
+  vr?: number;
+  clampMb?: boolean;
 };
 
 function round2(n: number) {
@@ -36,11 +39,16 @@ function round2(n: number) {
 export function computeCost(input: CalcInput): CostResult {
   const salary = Math.max(0, input.salary || 0);
   const hours = input.hours || 168;
-  const targetMb = Math.min(0.5, Math.max(0.15, input.targetMb));
+  const targetMb =
+    input.clampMb === false
+      ? Math.min(0.9, Math.max(0.01, input.targetMb))
+      : Math.min(0.5, Math.max(0.15, input.targetMb));
   const infra = INFRA_COST[input.infra];
   const finderPct = FINDER_PCT[input.finder];
   const finder = salary * finderPct;
   const teams = TEAMS_COST;
+  const va = input.va ?? (input.model === "PJ" ? 0 : CLT.va);
+  const vr = input.vr ?? (input.model === "PJ" ? 0 : CLT.vr);
   const breakdown: CostBreakdownLine[] = [];
 
   let costMonthly = 0;
@@ -48,7 +56,7 @@ export function computeCost(input: CalcInput): CostResult {
   if (input.model === "PJ") {
     const impostoPj = salary * PJ_TAX_RATE;
     const custoLiquido = salary - impostoPj;
-    const base = custoLiquido + infra + teams + finder;
+    const base = custoLiquido + infra + teams + finder + va + vr;
     const sga = base * SGA_RATE;
     costMonthly = base + sga;
     breakdown.push(
@@ -58,6 +66,10 @@ export function computeCost(input: CalcInput): CostResult {
       { label: "INFRA", value: infra },
       { label: "Teams/Office", value: teams },
       { label: `Finder (${(finderPct * 100).toFixed(0)}%)`, value: finder },
+    );
+    if (va) breakdown.push({ label: "Vale Alimentação", value: va });
+    if (vr) breakdown.push({ label: "Vale Refeição", value: vr });
+    breakdown.push(
       { label: "Base", value: base },
       { label: "SGA (9%)", value: sga },
       { label: "Custo mensal", value: costMonthly },
@@ -73,7 +85,8 @@ export function computeCost(input: CalcInput): CostResult {
     const aviso = salary * CLT.aviso;
     const multaFgts = salary * (CLT.fgts * CLT.decimo);
     const incidencias = ferias + decimo + fgtsFerias + inssFerias + fgtsDecimo + inssDecimo + aviso + multaFgts;
-    const beneficios = CLT.vr + CLT.va + CLT.vt + CLT.seguroVida + CLT.convenio;
+    const customBenefits = input.va != null || input.vr != null;
+    const beneficios = vr + va + CLT.vt + CLT.seguroVida + CLT.convenio;
     const subtotal = salary + encargosDiretos + incidencias + beneficios;
     const taxaAdm = subtotal * CLT_ADM_RATE;
     const base = subtotal + taxaAdm + infra + teams + finder;
@@ -90,7 +103,17 @@ export function computeCost(input: CalcInput): CostResult {
       { label: "INSS s/13º", value: inssDecimo },
       { label: "Aviso prévio", value: aviso },
       { label: "Multa FGTS", value: multaFgts },
-      { label: "Benefícios (VR+VA+VT+Seguro+Convênio)", value: beneficios },
+    );
+    if (customBenefits) {
+      breakdown.push(
+        { label: "Vale Alimentação", value: va },
+        { label: "Vale Refeição", value: vr },
+        { label: "VT + Seguro + Convênio", value: CLT.vt + CLT.seguroVida + CLT.convenio },
+      );
+    } else {
+      breakdown.push({ label: "Benefícios (VR+VA+VT+Seguro+Convênio)", value: beneficios });
+    }
+    breakdown.push(
       { label: "Subtotal", value: subtotal },
       { label: "Taxa ADM (8%)", value: taxaAdm },
       { label: "INFRA", value: infra },
