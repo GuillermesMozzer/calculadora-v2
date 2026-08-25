@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
-import { PROFILE_NAMES, TAX_ON_REVENUE, type ContractModel, type InfraOption, type Seniority } from "@/lib/margin-calculator";
-import { BTG_PROFILE_NAMES, type BtgSeniority } from "@/lib/v1/btg-ratecard";
+import { TAX_ON_REVENUE, type ContractModel, type InfraOption } from "@/lib/margin-calculator";
+import { getRatecard, listRatecards } from "@/lib/v1/ratecard-catalog";
 import { DEFAULT_HOURS, DEFAULT_MB, DEFAULT_VALE_REFEICAO, defaultValeAlimentacao } from "@/lib/v1/defaults";
+import type { V1Seniority } from "@/lib/v1/seniority";
 import {
   applyVaForSalary,
-  btgSaleHint,
-  type RatecardTable,
   runCost,
   saleFromCostMb,
+  saleHint,
   seedFromRatecard,
   type ValueKey,
   type V1Values,
@@ -27,10 +27,11 @@ const EMPTY_LOCKS: Record<ValueKey, boolean> = {
 };
 
 export function useV1Calculator() {
-  const [table, setTableState] = useState<RatecardTable>("taking");
+  const [catalogRev, setCatalogRev] = useState(0);
+  const tables = useMemo(() => listRatecards(), [catalogRev]);
+  const [tableId, setTableIdState] = useState("taking");
   const [profile, setProfileState] = useState("");
-  const [takingSeniority, setTakingSeniority] = useState<Seniority>("Pl");
-  const [btgSeniority, setBtgSeniority] = useState<BtgSeniority>("PLENO");
+  const [seniority, setSeniorityState] = useState<V1Seniority>("PLENO");
   const [model, setModelState] = useState<ContractModel>("CLT_FULL");
   const [hours, setHoursState] = useState(DEFAULT_HOURS);
   const [infra, setInfraState] = useState<InfraOption>("notebook");
@@ -45,9 +46,10 @@ export function useV1Calculator() {
     [model, hours, infra, va, vr],
   );
 
-  const profiles = table === "taking" ? PROFILE_NAMES : BTG_PROFILE_NAMES;
-  const btgHint = table === "btg" ? btgSaleHint(profile, btgSeniority) : undefined;
-  const seniority = table === "taking" ? takingSeniority : btgSeniority;
+  const table = tables.find((t) => t.id === tableId) ?? tables[0];
+  const profiles = table?.rows.map((r) => r.profile).filter(Boolean) ?? [];
+  const rangeHint = saleHint(tableId, profile, seniority, model);
+  const isHourlyTable = table?.kind === "hourly";
 
   const hold = {
     salary: locks.salary || locks.employeeHourly,
@@ -55,6 +57,14 @@ export function useV1Calculator() {
     sale: locks.saleHourly,
     mb: locks.mbPct,
   };
+
+  function reloadCatalog() {
+    setCatalogRev((n) => n + 1);
+  }
+
+  function reseed() {
+    seed({});
+  }
 
   function withVa(salary: number, base = extras) {
     return { ...base, va: applyVaForSalary(salary, vaTouched, base.va) };
@@ -82,28 +92,26 @@ export function useV1Calculator() {
   }
 
   function seed(partial: {
-    table?: RatecardTable;
+    tableId?: string;
     profile?: string;
-    takingSeniority?: Seniority;
-    btgSeniority?: BtgSeniority;
+    seniority?: V1Seniority;
     model?: ContractModel;
     hours?: number;
     extras?: typeof extras;
   }) {
-    const t = partial.table ?? table;
+    const t = partial.tableId ?? tableId;
     const p = partial.profile ?? profile;
-    const ts = partial.takingSeniority ?? takingSeniority;
-    const bs = partial.btgSeniority ?? btgSeniority;
+    const sen = partial.seniority ?? seniority;
     const m = partial.model ?? model;
     const h = partial.hours ?? hours;
     const base = { ...(partial.extras ?? extras), model: m, hours: h };
     const mb = currentMb();
+    const current = getRatecard(t) ?? listRatecards()[0];
 
     const seeded = seedFromRatecard({
-      table: t,
+      tableId: t,
       profile: p,
-      takingSeniority: ts,
-      btgSeniority: bs,
+      seniority: sen,
       model: m,
       extras: base,
       mb,
@@ -124,17 +132,17 @@ export function useV1Calculator() {
       applySalary(values.salary, mb, base);
       return;
     }
-    if (t === "btg" && p) {
+    if (current?.kind === "hourly" && p) {
       applySaleMb(seeded.saleMonthly, mb, base);
       return;
     }
     applySalary(seeded.salary, mb, base);
   }
 
-  function setTable(next: RatecardTable) {
-    setTableState(next);
+  function setTable(next: string) {
+    setTableIdState(next);
     setProfileState("");
-    seed({ table: next, profile: "" });
+    seed({ tableId: next, profile: "" });
   }
 
   function setProfile(next: string) {
@@ -142,14 +150,9 @@ export function useV1Calculator() {
     seed({ profile: next });
   }
 
-  function setSeniority(next: Seniority | BtgSeniority) {
-    if (table === "taking") {
-      setTakingSeniority(next as Seniority);
-      seed({ takingSeniority: next as Seniority });
-    } else {
-      setBtgSeniority(next as BtgSeniority);
-      seed({ btgSeniority: next as BtgSeniority });
-    }
+  function setSeniority(next: V1Seniority) {
+    setSeniorityState(next);
+    seed({ seniority: next });
   }
 
   function setModel(next: ContractModel) {
@@ -284,11 +287,10 @@ export function useV1Calculator() {
   }
 
   return {
-    table,
+    tableId,
+    tables,
     profile,
     seniority,
-    takingSeniority,
-    btgSeniority,
     model,
     hours,
     infra,
@@ -298,7 +300,10 @@ export function useV1Calculator() {
     values,
     locks,
     profiles,
-    btgHint,
+    rangeHint,
+    isHourlyTable,
+    reloadCatalog,
+    reseed,
     setTable,
     setProfile,
     setSeniority,
@@ -315,10 +320,9 @@ export function useV1Calculator() {
 
 function emptySeed() {
   return seedFromRatecard({
-    table: "taking",
+    tableId: "taking",
     profile: "",
-    takingSeniority: "Pl",
-    btgSeniority: "PLENO",
+    seniority: "PLENO",
     model: "CLT_FULL",
     extras: {
       model: "CLT_FULL",

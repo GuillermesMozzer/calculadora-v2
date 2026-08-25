@@ -1,23 +1,13 @@
 import {
   TAX_ON_REVENUE,
-  baseSalaryFor,
   computeCost,
   type ContractModel,
   type CostBreakdownLine,
   type InfraOption,
-  type Seniority,
 } from "@/lib/margin-calculator";
-import {
-  type BtgSeniority,
-  btgMidHourly,
-  btgRange,
-  type HourRange,
-} from "./btg-ratecard";
+import { getRatecard, listRatecards, lookupRate } from "./ratecard-catalog";
 import { DEFAULT_MB, DEFAULT_VALE_REFEICAO, defaultValeAlimentacao } from "./defaults";
-
-export type RatecardTable = "taking" | "btg";
-
-export type V1Seniority = Seniority | BtgSeniority;
+import type { RateCell, V1Seniority } from "./seniority";
 
 export type ValueKey =
   | "saleHourly"
@@ -145,36 +135,31 @@ export function valuesFromSaleAndCost(saleMonthly: number, costMonthly: number, 
   return packValues(salary, cost.costMonthly, saleMonthly, extras, cost.breakdown);
 }
 
-export function takingBaseSalary(profile: string, seniority: Seniority, model: ContractModel) {
-  if (!profile) return 0;
-  return baseSalaryFor(profile, seniority, model);
-}
-
-export function btgSaleHint(profile: string, seniority: BtgSeniority): HourRange | undefined {
-  if (!profile) return undefined;
-  return btgRange(profile, seniority);
+export function saleHint(tableId: string, profile: string, seniority: V1Seniority, model: ContractModel): RateCell {
+  const table = getRatecard(tableId) ?? listRatecards()[0];
+  if (!table || !profile) return null;
+  return lookupRate(table, profile, seniority, model).range;
 }
 
 export function seedFromRatecard(input: {
-  table: RatecardTable;
+  tableId: string;
   profile: string;
-  takingSeniority: Seniority;
-  btgSeniority: BtgSeniority;
+  seniority: V1Seniority;
   model: ContractModel;
   extras: EngineExtras;
   mb: number;
 }): V1Values {
-  const { table, profile, extras, mb } = input;
+  const { profile, extras, mb, seniority, model } = input;
   if (!profile) return valuesFromSalary(0, mb, extras);
 
-  if (table === "taking") {
-    const salary = takingBaseSalary(profile, input.takingSeniority, input.model);
-    return valuesFromSalary(salary, mb, extras);
-  }
+  const table = getRatecard(input.tableId) ?? listRatecards()[0];
+  const found = lookupRate(table, profile, seniority, model);
 
-  const saleHourly = btgMidHourly(profile, input.btgSeniority);
-  const saleMonthly = saleHourly * safeHours(extras.hours);
-  return valuesFromSaleAndMb(saleMonthly, mb, extras);
+  if (table.kind === "hourly") {
+    const saleMonthly = found.saleHourly * safeHours(extras.hours);
+    return valuesFromSaleAndMb(saleMonthly, mb, extras);
+  }
+  return valuesFromSalary(found.salary, mb, extras);
 }
 
 export function applyVaForSalary(salary: number, vaTouched: boolean, currentVa: number) {

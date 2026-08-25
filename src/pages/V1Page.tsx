@@ -1,4 +1,5 @@
-import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { CircleHelp, LogOut } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { TakingLogo } from "@/components/TakingLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -7,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function V1Page() {
   const { user, logout } = useAuth();
+  const [replayTour, setReplayTour] = useState(0);
 
   if (!user) return <Navigate to="/" replace />;
 
@@ -24,6 +26,15 @@ export default function V1Page() {
             <p className="text-sm font-medium text-foreground/90">{user.name}</p>
             <p className="text-xs text-muted/80">{user.email}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setReplayTour((n) => n + 1)}
+            title="Abrir tutorial"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-taking/40 bg-taking-muted px-3 text-xs font-semibold text-taking transition-colors hover:border-taking hover:bg-taking hover:text-white"
+          >
+            <CircleHelp className="h-4 w-4" />
+            Tutorial
+          </button>
           <ThemeToggle />
           <button
             type="button"
@@ -41,7 +52,7 @@ export default function V1Page() {
           <h1 className="text-lg font-semibold">Precificação</h1>
           <p className="text-sm text-muted">Passo a passo · Ratecard Taking ou BTG</p>
         </div>
-        <V1Calculator />
+        <V1Calculator replayTour={replayTour} />
       </main>
     </div>
   );

@@ -1,19 +1,48 @@
-import { useState } from "react";
-import { formatBRL, formatPct, MODEL_LABEL, SENIORITY_LABEL, type Seniority } from "@/lib/margin-calculator";
-import { BTG_SENIORITIES, type BtgSeniority } from "@/lib/v1/btg-ratecard";
+import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
+import { formatBRL, formatPct, MODEL_LABEL } from "@/lib/margin-calculator";
 import { useV1Calculator } from "@/hooks/useV1Calculator";
 import { PillSelect } from "@/components/inputs";
 import { ApprovalChip, MbGauge, MetricTile } from "@/components/shared";
 import { CollapsibleSection } from "@/components/v1/CollapsibleSection";
 import { CompetencySearch } from "@/components/v1/CompetencySearch";
 import { LockableInput } from "@/components/v1/LockableInput";
+import {
+  OnboardingTour,
+  V1_TOUR_STEPS,
+  isV1TourDone,
+  markV1TourDone,
+} from "@/components/v1/OnboardingTour";
+import { RatecardLightbox } from "@/components/v1/RatecardLightbox";
+import { V1_SENIORITIES, type V1Seniority } from "@/lib/v1/seniority";
 import type { ValueKey } from "@/lib/v1/solver";
 
-const TAKING_SENIORITIES: Seniority[] = ["Jr", "Pl", "Sr", "Esp"];
-
-export function V1Calculator() {
+export function V1Calculator({ replayTour = 0 }: { replayTour?: number }) {
   const calc = useV1Calculator();
   const [open, setOpen] = useState({ perfil: true, valores: false, extras: false, breakdown: false });
+  const [lightbox, setLightbox] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => !isV1TourDone());
+  const [tourStep, setTourStep] = useState(0);
+
+  useEffect(() => {
+    if (replayTour > 0) {
+      setTourStep(0);
+      setTourOpen(true);
+    }
+  }, [replayTour]);
+
+  useEffect(() => {
+    if (!tourOpen) return;
+    const section = V1_TOUR_STEPS[tourStep]?.section;
+    if (!section) return;
+    setOpen((prev) => (prev[section] ? prev : { ...prev, [section]: true }));
+  }, [tourOpen, tourStep]);
+
+  function closeTour() {
+    markV1TourDone();
+    setTourOpen(false);
+    setTourStep(0);
+  }
 
   function toggle(key: keyof typeof open) {
     setOpen((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -32,73 +61,80 @@ export function V1Calculator() {
         >
           <div className="space-y-5">
             <div className="flex flex-wrap gap-4">
-              <div className="min-w-[220px] flex-1">
+              <div className="min-w-[220px] flex-1" data-tour="tour-ratecard">
                 <label className="mb-1.5 block text-xs font-medium text-muted">1. Tabela ratecard</label>
                 <select
-                  value={calc.table}
-                  onChange={(e) => calc.setTable(e.target.value as "taking" | "btg")}
+                  value={calc.tableId}
+                  onChange={(e) => calc.setTable(e.target.value)}
                   className="w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm text-foreground outline-none focus:border-taking/50 focus:ring-1 focus:ring-taking/30"
                 >
-                  <option value="taking">Ratecard Taking</option>
-                  <option value="btg">Ratecard BTG</option>
+                  {calc.tables.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
                 </select>
                 <p className="mt-1.5 text-[11px] text-muted">
-                  {calc.table === "taking"
-                    ? "Tabela salarial Taking (PJ / CLT). Default da calculadora."
-                    : "Faixa de venda em R$/hora · base 168h · modelo CLT. O valor praticado entra como hora de venda."}
+                  {calc.isHourlyTable
+                    ? "Faixa de venda em R$/hora. O valor praticado entra como hora de venda."
+                    : "Tabela salarial (PJ / CLT). Default da calculadora."}
                 </p>
               </div>
-              <CompetencySearch
-                value={calc.profile}
-                names={calc.profiles}
-                onChange={calc.setProfile}
-                className="min-w-[220px] flex-1"
-              />
+              <div className="min-w-[220px] flex-1" data-tour="tour-competency">
+                <CompetencySearch
+                  value={calc.profile}
+                  names={calc.profiles}
+                  onChange={calc.setProfile}
+                />
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <div className="min-w-[200px] flex-[1.4]">
-                <p className="mb-1.5 text-xs font-medium text-muted">3. Senioridade</p>
-                {calc.table === "taking" ? (
-                  <PillSelect
-                    label=""
-                    value={calc.takingSeniority}
-                    onChange={(v) => calc.setSeniority(v)}
-                    options={TAKING_SENIORITIES.map((s) => ({ value: s, label: SENIORITY_LABEL[s] }))}
-                  />
-                ) : (
-                  <PillSelect
-                    label=""
-                    value={calc.btgSeniority}
-                    onChange={(v) => calc.setSeniority(v as BtgSeniority)}
-                    options={BTG_SENIORITIES.map((s) => ({ value: s.id, label: s.label }))}
-                  />
-                )}
-              </div>
-              <div className="min-w-[180px] flex-1">
+              <div className="min-w-[200px] flex-[1.4]" data-tour="tour-seniority">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <p className="text-xs font-medium text-muted">3. Senioridade</p>
+                  <button
+                    type="button"
+                    onClick={() => setLightbox(true)}
+                    title="Editar ratecard"
+                    className="rounded-md p-1 text-muted/70 transition-colors hover:text-foreground"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
                 <PillSelect
-                  label="4. Modelo de contratação"
-                  value={calc.model}
-                  onChange={calc.setModel}
-                  options={[
-                    { value: "CLT_FULL", label: MODEL_LABEL.CLT_FULL },
-                    { value: "CLT_ESTRATEGICO", label: MODEL_LABEL.CLT_ESTRATEGICO },
-                    { value: "PJ", label: MODEL_LABEL.PJ },
-                  ]}
+                  label=""
+                  value={calc.seniority}
+                  onChange={(v) => calc.setSeniority(v as V1Seniority)}
+                  options={V1_SENIORITIES.map((s) => ({ value: s.id, label: s.label }))}
                 />
               </div>
-              <div className="min-w-[140px] flex-[0.8]">
-                <label className="mb-1.5 block text-xs font-medium text-muted">
-                  5. Quantidade de horas / mês
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={calc.hours}
-                  onChange={(e) => calc.setHours(Number(e.target.value))}
-                  className="mono-num w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50 focus:ring-1 focus:ring-taking/30"
-                />
-                <p className="mt-1.5 text-[11px] text-muted">Pré-preenchido em 168h.</p>
+              <div className="flex min-w-[320px] flex-1 flex-wrap gap-4" data-tour="tour-contract">
+                <div className="min-w-[180px] flex-1">
+                  <PillSelect
+                    label="4. Modelo de contratação"
+                    value={calc.model}
+                    onChange={calc.setModel}
+                    options={[
+                      { value: "CLT_FULL", label: MODEL_LABEL.CLT_FULL },
+                      { value: "CLT_ESTRATEGICO", label: MODEL_LABEL.CLT_ESTRATEGICO },
+                      { value: "PJ", label: MODEL_LABEL.PJ },
+                    ]}
+                  />
+                </div>
+                <div className="min-w-[140px] flex-[0.8]">
+                  <label className="mb-1.5 block text-xs font-medium text-muted">
+                    5. Quantidade de horas / mês
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={calc.hours}
+                    onChange={(e) => calc.setHours(Number(e.target.value))}
+                    className="mono-num w-full rounded-xl border border-border/15 bg-surface-overlay px-3 py-2.5 text-sm outline-none focus:border-taking/50 focus:ring-1 focus:ring-taking/30"
+                  />
+                  <p className="mt-1.5 text-[11px] text-muted">Pré-preenchido em 168h.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -109,64 +145,52 @@ export function V1Calculator() {
           subtitle="Calculados automaticamente. Trave um campo com o cadeado para simular."
           open={open.valores}
           onToggle={() => toggle("valores")}
+          tourId="tour-calculator"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <LockField
-              id="saleHourly"
-              label="Valor hora de venda"
-              suffix="R$/h"
-              value={values.saleHourly}
-              calc={calc}
-              hint={
-                calc.btgHint
-                  ? `Faixa BTG: R$ ${calc.btgHint.min} – ${calc.btgHint.max}/h`
-                  : undefined
-              }
-            />
-            <LockField
-              id="employeeHourly"
-              label="Valor hora ao funcionário"
-              suffix="R$/h"
-              value={values.employeeHourly}
-              calc={calc}
-            />
-            <LockField
-              id="costHourly"
-              label="Custo hora real Taking"
-              suffix="R$/h"
-              value={values.costHourly}
-              calc={calc}
-            />
-            <LockField
-              id="salary"
-              label="Salário ao funcionário"
-              suffix="R$"
-              value={values.salary}
-              calc={calc}
-            />
-            <LockField
-              id="costMonthly"
-              label="Custo mês real Taking"
-              suffix="R$"
-              value={values.costMonthly}
-              calc={calc}
-            />
-            <LockableInput
-              label="Margem bruta alvo"
-              suffix="%"
-              value={Math.round(values.mbPct * 1000) / 10}
-              onChange={(v) => calc.editValue("mbPct", v)}
-              locked={locks.mbPct}
-              onToggleLock={() => calc.toggleLock("mbPct")}
-              hint="Trave a % e altere a hora de venda — o restante se ajusta."
-            />
-            <LockField
-              id="mbReais"
-              label="Margem bruta alvo"
-              suffix="R$"
-              value={values.mbReais}
-              calc={calc}
-            />
+          <div className="flex flex-wrap gap-4">
+            <div className="min-w-[200px] flex-1">
+              <LockField
+                id="saleHourly"
+                label="Valor hora de venda"
+                suffix="R$/h"
+                value={values.saleHourly}
+                calc={calc}
+                hint={
+                  calc.isHourlyTable && calc.rangeHint
+                    ? `Faixa: R$ ${calc.rangeHint.min} – ${calc.rangeHint.max}/h`
+                    : undefined
+                }
+              />
+            </div>
+            <div className="min-w-[200px] flex-1">
+              <LockField
+                id="salary"
+                label="Salário ao funcionário"
+                suffix="R$"
+                value={values.salary}
+                calc={calc}
+              />
+            </div>
+            <div className="min-w-[200px] flex-1">
+              <LockableInput
+                label="Margem bruta alvo"
+                suffix="%"
+                value={Math.round(values.mbPct * 1000) / 10}
+                onChange={(v) => calc.editValue("mbPct", v)}
+                locked={locks.mbPct}
+                onToggleLock={() => calc.toggleLock("mbPct")}
+                hint="Trave a % e altere a hora de venda — o restante se ajusta."
+              />
+            </div>
+            <div className="min-w-[200px] flex-1">
+              <LockField
+                id="mbReais"
+                label="Margem bruta alvo"
+                suffix="R$"
+                value={values.mbReais}
+                calc={calc}
+              />
+            </div>
           </div>
         </CollapsibleSection>
 
@@ -175,6 +199,7 @@ export function V1Calculator() {
           subtitle="Entram no custo. Podem ser alterados a qualquer momento."
           open={open.extras}
           onToggle={() => toggle("extras")}
+          tourId="tour-benefits"
         >
           <div className="space-y-5">
             <PillSelect
@@ -187,8 +212,8 @@ export function V1Calculator() {
                 { value: "none", label: "Sem máquina" },
               ]}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
+            <div className="flex flex-wrap gap-4">
+              <div className="min-w-[200px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted">Vale alimentação</label>
                 <input
                   type="number"
@@ -209,7 +234,7 @@ export function V1Calculator() {
                   ) : null}
                 </p>
               </div>
-              <div>
+              <div className="min-w-[200px] flex-1">
                 <label className="mb-1.5 block text-xs font-medium text-muted">Vale refeição</label>
                 <input
                   type="number"
@@ -228,6 +253,7 @@ export function V1Calculator() {
           subtitle="Composição do custo mensal Taking."
           open={open.breakdown}
           onToggle={() => toggle("breakdown")}
+          tourId="tour-breakdown"
         >
           <div className="overflow-auto rounded-xl border border-border/10">
             <table className="w-full text-xs">
@@ -247,7 +273,7 @@ export function V1Calculator() {
       </div>
 
       <aside className="order-1 lg:sticky lg:top-24 lg:order-2 lg:self-start">
-        <div className="glass overflow-hidden rounded-2xl shadow-glow">
+        <div className="glass overflow-hidden rounded-2xl shadow-glow" data-tour="tour-summary">
           <div className="border-b border-border/10 bg-taking-muted px-5 py-4">
             <p className="text-[11px] uppercase tracking-widest text-taking">Preço de venda</p>
             <p className="mono-num mt-1 text-3xl font-bold text-foreground sm:text-4xl">
@@ -280,6 +306,25 @@ export function V1Calculator() {
           )}
         </div>
       </aside>
+
+      <OnboardingTour
+        open={tourOpen}
+        stepIndex={tourStep}
+        onStep={setTourStep}
+        onSkip={closeTour}
+        onFinish={closeTour}
+      />
+
+      <RatecardLightbox
+        open={lightbox}
+        currentTableId={calc.tableId}
+        onClose={() => setLightbox(false)}
+        onSaved={(id) => {
+          calc.reloadCatalog();
+          if (id !== calc.tableId) calc.setTable(id);
+          else calc.reseed();
+        }}
+      />
     </div>
   );
 }

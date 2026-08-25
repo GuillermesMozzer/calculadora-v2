@@ -9,6 +9,7 @@ export function CollapsibleSection({
   open,
   onToggle,
   children,
+  tourId,
 }: {
   title: string;
   subtitle?: string;
@@ -16,9 +17,10 @@ export function CollapsibleSection({
   open: boolean;
   onToggle: () => void;
   children: ReactNode;
+  tourId?: string;
 }) {
   return (
-    <section className="glass overflow-hidden rounded-2xl">
+    <section className="glass overflow-hidden rounded-2xl" data-tour={tourId}>
       <button
         type="button"
         onClick={onToggle}
