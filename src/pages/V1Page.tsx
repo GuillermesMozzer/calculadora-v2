@@ -50,7 +50,7 @@ export default function V1Page() {
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="mb-5 lg:hidden">
           <h1 className="text-lg font-semibold">Precificação</h1>
-          <p className="text-sm text-muted">Passo a passo · Ratecard Taking ou BTG</p>
+          <p className="text-sm text-muted">Passo a passo · Ratecard Taking 2026 ou BTG</p>
         </div>
         <V1Calculator replayTour={replayTour} />
       </main>

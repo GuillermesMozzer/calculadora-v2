@@ -25,7 +25,7 @@ export const V1_TOUR_STEPS: TourStep[] = [
   {
     id: "ratecard",
     title: "1. Escolha a tabela ratecard",
-    body: "Comece pela tabela. O padrão é Ratecard Taking (salário). A Ratecard BTG usa faixa de venda em R$/hora. Depois você pode criar ou importar outras tabelas.",
+    body: "Comece pela tabela. O padrão é Ratecard Taking (faixa de venda em R$/hora). A Ratecard BTG usa outra tabela de faixas. Depois você pode criar ou importar outras tabelas.",
     target: "tour-ratecard",
     section: "perfil",
   },
